@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Note Taking App</title>
+</head>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  .backdrop {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: radial-gradient(rgba(24, 116, 245, 0.8), rgba(0, 42, 102, 0.8));
+    backdrop-filter: blur(5px);
+  }
+
+  /*ELEMENTS CSS*/
+  body {
+    /*-------> HOW TO CENTER A DIV <-------*/
+    display: flex;
+    /*horizontal-- youtube:css flexbox or w3school*/
+    flex-direction: column;
+    /*vertical set up elements*/
+    align-items: center;
+    /*center horizontally, To just center the text inside an element, use text-align: center*/
+    justify-content: center;
+    /*center vertically*/
+    /* overflow: hidden; */
+    /*hide the scroll bar*/
+    margin: 0;
+    /*WHY?*/
+
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url("https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fcomsupport.fau.edu%2Ffile.php%2F3736MMXQMGBAYW373534603A88BPD%2Ffau-background-5.jpg&f=1&nofb=1&ipt=3a07df23e1fbba5d6b648e4fe16405baa972afbb433c3573daac93f3b0b71ec0&ipo=images");
+    background-position: center center;
+    backdrop-filter: blur(3px);
+    position: relative;
+    color: #fff;
+  }
+
+  button {
+    border-radius: 3px;
+    border: 1px solid #000;
+    border-bottom-width: 2px;
+    padding: 5px 10px;
+    cursor: pointer;
+    color: #fff;
+    transition: transform 0.05s ease;
+    transform-origin: center;
+  }
+
+  button:active {
+    transform: scale(0.9) translateY(5px);
+  }
+
+  button.green {
+    background-color: #2ed573;
+  }
+
+  button.yellow {
+    background-color: #FFD43B;
+  }
+
+  button.orange {
+    /* background-color: #5352ed; */
+    background-color: #ff9f43;
+  }
+
+  .red--option {
+    background-color: #ff4757;
+    padding: 2px 4px;
+    border: .6px solid #111;
+  }
+
+  .orange--option {
+    background-color: #ff9f43;
+    padding: 2px 4px;
+    margin-right: 2px;
+    border: .6px solid #111;
+  }
+
+  button.red {
+    background-color: #ff4757;
+  }
+
+  .container{
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* CLASSES CSS */
+  .main {
+    display: flex;
+  }
+
+  .button-group {
+    margin: 10px;
+  }
+
+  #notes-list {
+    width: 100%;
+    margin: 0 auto;
+    text-align: center;
+    max-height: 10rem;
+  }
+
+  #input {
+    width: 100%;
+    max-width: 20rem;
+    height: 5rem;
+    max-height: 8rem;
+    min-height: 3ch;
+    min-width: 20rem;
+    border: 2px solid #000;
+    border-bottom-width: 4px;
+    border-radius: 4px;
+    font-family: inherit;
+    padding: 10px;
+  }
+
+  .note {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #000;
+    border-bottom-width: 2px;
+    box-shadow: 0 0 32px #003066;
+    padding: 15px;
+    padding-top: 5px;
+    position: relative;
+    transition: transform 0.2s ease;
+    transform-origin: center;
+    text-align: left;
+    background: rgba(0, 48, 102, 0.5);
+    backdrop-filter: blur(5px);
+  }
+
+  .note:hover {
+    transform: scale(1.1);
+  }
+
+  .note:not(:last-child) {
+    margin-bottom: 10px;
+  }
+
+  .note>.note-title {
+    text-transform: uppercase;
+    font-size: 70%;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  .fau-logo {
+    max-width: 15rem;
+    margin-bottom: 1rem;
+    user-select: none;
+  }
+
+  .content-wrapper {
+    z-index: 1;
+    text-align: center;
+    max-width: 400px;
+  }
+
+</style>
+
+<body>
+  <div class="backdrop"></div>
+  <div class="content-wrapper">
+    <img class="fau-logo" draggable="false"
+      src="https://upload.wikimedia.org/wikipedia/en/thumb/4/40/Florida_Atlantic_Owls_logo.svg/1200px-Florida_Atlantic_Owls_logo.svg.png" />
+    <div class="main">
+      <label for="demo"></label>
+      <textarea placeholder="Type your note's content here..." autofocus id="input" name="demo"></textarea>
+    </div>
+    <div class="button-group">
+      <button class="green" input="button" id="get">Fetch all notes</button>
+      <button class="yellow" input="button" id="post">Post</button>
+      <!-- <button class="orange" input="button" id="update">Update</button>
+      <button class="red" input="button" id="delete">Delete</button> -->
+    </div>
+    <br />
+    <div id="notes-list"></div>
+  </div>
+
+  <script>
+    //<-- FRONTEND JS -->
+    const BACKEND = "api/notes"
+    let $input = document.getElementById("input");
+    let $output = document.getElementById("output")
+    let $getBtn = document.getElementById("get")
+    let $postBtn = document.getElementById("post");
+    let $updateBtn = document.getElementById("update");
+    let $deleteBtn = document.getElementById("delete");
+    let $notesList = document.getElementById("notes-list");
+    let successFlag;
+    const $noteObjects = []
+
+    function getAll(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      try{
+        fetch(`${BACKEND}`)
+          .then(response =>{ 
+            if (response.ok === true){
+              successFlag = true
+            }
+            return response.json()
+          })
+          .then(data => {
+            if (successFlag) {
+              $notesList.innerHTML = ""
+
+              if (data.length === 0)
+                $notesList.innerHTML = "There are no notes stored."
+
+              for (let note of data) {
+                // Create a corresponding HTML element for the note's information (title & content).
+                //containers
+                let $noteWrapper = document.createElement("div")
+                let $contentWrapper = document.createElement("div")
+                let $btnWrapper = document.createElement("div")
+                //inline
+                let $noteTitle = document.createElement("p")
+                let $noteContent = document.createElement("strong")
+                //BUTTONS
+                let $deleteBtn = document.createElement("button")
+                let $updateBtn = document.createElement("button")
+
+
+                //Add class to div element
+                $noteWrapper.classList.add('container')
+                //Set text color for strong element 
+                $noteTitle.style.color = 'white';
+
+                //Add css to the UPDATE BUTTON element
+                $updateBtn.classList.add('orange--option')
+                $updateBtn.setAttribute('data-id', note.id)
+                $updateBtn.innerText = "edit"
+                //Add css to the DELETE BUTTON element
+                $deleteBtn.classList.add('red--option')
+                $deleteBtn.setAttribute('data-id', note.id)
+                $deleteBtn.innerText = "del"
+                
+                //Append classes to the element
+                $deleteBtn.classList.add("delete-btn")
+                $updateBtn.classList.add("update-btn")
+                $noteWrapper.classList.add("note")
+                $noteTitle.classList.add("note-title")
+                $noteContent.classList.add("note-content")
+
+                // Populate the HTML element's content with the note's information.
+                $noteTitle.innerHTML = `${note.id}. `
+                $noteContent.innerHTML = note.title
+                //P takes in strong element
+                $noteTitle.appendChild($noteContent)
+                
+                $contentWrapper.appendChild($noteTitle)
+                // $contentWrapper.appendChild($noteContent)
+                $btnWrapper.appendChild($updateBtn)
+                $btnWrapper.appendChild($deleteBtn)
+
+                // Add the note's information inside a wrapper div.
+                // $noteWrapper.appendChild($noteTitle)
+                $noteWrapper.appendChild($contentWrapper)
+                $noteWrapper.appendChild($btnWrapper)
+
+                // Add the note div to the list.
+                $notesList.appendChild($noteWrapper)
+
+
+                $deleteBtn.addEventListener('click', deletePost)
+                $updateBtn.addEventListener('click', updatePost)
+                $noteObjects.push(note)
+            }
+          }
+          else{
+              return console.error(data.message)
+            }
+        })
+      }
+      catch(err){
+        console.log(err.message)
+      }
+    }
+
+    function sendPost(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const data = { title: window.prompt("Enter the note's title"), content: $input.value };
+      if (data.content == null) return
+
+      // ---------------------------------QUESTIONS---------------------------------------------- 
+      // How to send data to the backend, using Javascript?
+      // Is fetch a asynchronous web api?
+      // What is a fetch promise, response, resolve, and reject?
+      // What is a callback function in javascript?
+      // BONUS QUESTIONS: 
+      // How does the server know what type of information is being sent to it?
+      // How do you parse a response from a fetch promise?
+      // Explain the system architecture of a web application from frontend to backend.
+      try{
+        fetch(`${BACKEND}`, { // Sending request to endpoint (url/api).
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json", // Why we do this?
+          },
+          body: JSON.stringify(data) // What going on here?
+        })
+          .then((response) => {
+            if (response.ok == true && response.status == 200){
+              successFlag = true
+              response.json()
+            }
+            else throw new Error("Something went wrong with POST request!")
+          }).then(()=>getAll())
+      }
+      catch(err){
+        console.log(error.message)
+      };
+    }
+
+    function updatePost(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      successFlag = false
+      //USE THE ELEMENTS CREDENTIALS
+      const $id = e.target.getAttribute('data-id');
+      const data = { id: $id, content: window.prompt("update input.")};
+      if (data.content == null) return
+      try{
+        fetch("/api/notes", { 
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json", 
+          },
+          body: JSON.stringify(data) 
+        })
+          .then((response) => { 
+            if (response.ok == true && response.status == 200){
+              getAll()
+            }
+            else throw new Error("Something went wrong UPDATING!")
+          }) 
+        }catch(err){
+          console.log(err.message);
+        }
+    }
+
+    function deletePost(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const $recordNum = e.target.getAttribute('data-id')
+      const data = {id: window.prompt("Enter note ID."), content: $recordNum}
+      if (data.id == null) return
+      // const data = {id: e.target.getAttribute('data-id')}
+      
+      try{
+        fetch(`${BACKEND}`, {
+          method: "DEL",
+          headers: {
+            "Content-Type": "application/json", 
+          },
+          body: JSON.stringify(data)
+        }).then((response) => {
+          if (response.ok == true && response.status == 200){
+              getAll()
+            }
+            else throw new Error("Something went wrong DELETING!")
+        })
+      }catch(err){
+        console.log(err.message);
+      }
+    }
+
+    // EVENT LISTENERS:
+    // What is an event listener? Where does it come from?
+    // What is in the second argument of the parameter?
+    $getBtn.addEventListener("click", getAll);
+    $postBtn.addEventListener("click", sendPost);
+  </script>
+</body>
+
+</html>
