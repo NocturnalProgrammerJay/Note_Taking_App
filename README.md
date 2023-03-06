@@ -8,7 +8,7 @@
 4. Clone this repository using Git, inside the `C:/xampp/htdocs` folder:
 
 ```bash
-git clone https://github.com/yurixander/note-taking-app.git .
+git clone https://github.com/yurixander/note-taking-app.git
 ```
 
 The `index.php` file should be directly under the `htdocs` folder. In other words: `C:/xampp/htdocs/index.php`.
@@ -36,6 +36,8 @@ The `index.php` file should be directly under the `htdocs` folder. In other word
 1. [HTML](https://www.w3schools.com/html/default.asp)
 2. [Super basic CSS](https://www.w3schools.com/css/default.asp)
 3. [JavaScript requests & DOM manipulation basics](https://www.w3schools.com/js/default.asp) - All needed is how to send requests and receive responses, and add and remove elements from/into the DOM. Some functions that can be used for this would be ".appendChild()", ".remove()". Then, "fetch" would be used for HTTP requests.
+
+## Conclusion 
 
 
 ![img8](https://user-images.githubusercontent.com/96387037/211724370-2e83fb2d-4616-4e1b-9f97-f53f8ea15927.PNG)
