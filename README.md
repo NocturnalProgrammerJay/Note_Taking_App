@@ -1,3 +1,5 @@
+# Note Taking App
+
 The purpose of this note taking app is to teach undergraduate students about full stack development, using various tools and technologies such as Postman, PHP, HTML, CSS, JavaScript, OOP, and MVC architecture.
 
 Basic setup & installation
